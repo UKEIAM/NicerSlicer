@@ -59,6 +59,14 @@ def id_from_section_option(section_option: str) -> int:
     return int(section_option.split("-")[0].strip())
 
 
+def discard_section(pdf_handler: PDFHandler):
+    # set section to discard status
+    pdf_handler.sections[st.session_state.selected_section_index].discarded = True
+    # store state
+    pdf_handler.save_state(os.path.join(STAGE_PATH, st.session_state.selected_document, SECTION_JSON))
+    # update session state
+    st.session_state.discarded_sections = pdf_handler.get_discarded_sections()
+
 # ---- Cached Methods ----
 
 
@@ -144,6 +152,9 @@ def join_sections(section_index, pdf_handler):
         else:
             pdf_handler.join_sections(section_index, int(join_with.replace("Section ", "")), section_title)
 
+        # update discard session state
+        st.session_state.discarded_sections = pdf_handler.get_discarded_sections()
+
         pdf_handler.save_state(os.path.join(STAGE_PATH, st.session_state.selected_document, SECTION_JSON))
 
         st.rerun()
@@ -186,6 +197,8 @@ def split_sections(section_index: int, pdf_handler: PDFHandler, slider_start: in
 
     if st.button("Commit", type="primary"):
         pdf_handler.split_sections(section_index, section_separator, title1, title2)
+        # update discard session state
+        st.session_state.discarded_sections = pdf_handler.get_discarded_sections()
         pdf_handler.save_state(os.path.join(STAGE_PATH, st.session_state.selected_document, SECTION_JSON))
 
         st.rerun()
@@ -265,9 +278,10 @@ def commmit_section(section_index: int, pdf_handler: PDFHandler, slider_start: i
             pdf_handler.commit_section_slice(slicer)
             # get discard sections
             discarded_sections = pdf_handler.get_discarded_sections()
-            print(discarded_sections)
+
             if discarded_sections:
-                st.session_state.discarded_sections.extend(discarded_sections)
+
+                st.session_state.discarded_sections = discarded_sections
 
             pdf_handler.save_state(os.path.join(STAGE_PATH, st.session_state.selected_document, SECTION_JSON))
 
@@ -344,9 +358,15 @@ with st.sidebar:
     st.header("Section Operations")
     side_col_4, side_col_5, side_col_6 = st.columns(3)
     with side_col_4:
-        if st.button("Discard", type="tertiary", key="discard_section",
-                     icon=":material/delete:", help="Delete the selected section"):
-            st.session_state.discarded_sections.append(st.session_state.selected_section_index)
+        st.button(
+            "Discard",
+            type="tertiary",
+            key="discard_section",
+            icon=":material/delete:",
+            help="Delete the selected section",
+            on_click=discard_section,
+            args=[pdf_handler]
+        )
     with side_col_5:
         if st.button("Join", type="tertiary", key="join-sections",
                      icon=":material/merge_type:", help="Join this section with another one"):
@@ -417,6 +437,7 @@ with slice_tab:
     if st.session_state.selected_document:
         for section_index, section in enumerate(pdf_handler.sections):
             if section.id_ in st.session_state.discarded_sections:
+
                 section.discarded = True
             # set color and state bool
             section_color = BRACKET_COLORS[section_index % len(BRACKET_COLORS)]

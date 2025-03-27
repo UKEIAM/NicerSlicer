@@ -183,17 +183,6 @@ class PDFHandler:
             # Update spans and add to sections
             section.spans = (start, end)
             pdf_sections.append(section)
-            # start = len(pdf_tokens)
-            # pdf_tokens += comp_ele.text.split(" ")
-            # end = len(pdf_tokens) - 1
-
-            # # append to sections
-            # pdf_sections.append(Section(
-            #     state=SectionSate.NO_SPANS,
-            #     text=comp_ele.text,
-            #     title=comp_ele.metadata.orig_elements[0].text,
-            #     spans=(start, end)
-            # ))
 
         return PDFHandler(pdf_sections)
 
@@ -219,7 +208,7 @@ class PDFHandler:
         """Join two sections together"""
         # TODO: join with leading section does not work??
         section_to_be_joined = self.sections[min(section_one_indx, section_two_inxd)]
-        print(section_one_indx, section_two_inxd)
+
         section_after = self.sections.pop(max(section_one_indx, section_two_inxd))
         new_section = Section(
             id_=section_one_indx,
@@ -292,7 +281,7 @@ class PDFHandler:
                 self.sections.insert(slicer.current_section_indx, leading_slice)
                 # set section to discard
                 if slicer.leading_section_inbounds_method == 2:
-                    print("Hello, the error might occur for the first section only!")
+
                     self.sections[slicer.current_section_indx
                                   - 1 if slicer.current_section_indx > 0 else 0].discarded = True
 
@@ -367,22 +356,6 @@ class PDFHandler:
         section.spans = (cursor_start + 1, cursor_end - 1)
 
         self._update_section_ids()
-
-    def commit_section_adaptions(self, section_indx, cursor_start, cursor_end, section_title):
-
-        section = self.sections[section_indx]
-
-        # TODO: 1. slider extends current bounds
-
-        # find section or sections before
-
-        # find section or sections after
-
-        # TODO: 2. slider is within current bounds
-
-        self._update_section_ids()
-
-        # TODO: return discarded sections???
 
     def _update_section_ids(self):
         for i, sect in enumerate(self.sections):
