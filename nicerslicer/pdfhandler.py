@@ -16,7 +16,9 @@ class SectionSate(Enum):
 
 
 class Section:
-
+    """
+    Class to handle the formatting of sections with bound markers
+    """
     # BEGIN_MARKER = "<span class='bracket-font'>:blue-background[:blue[:material/text_select_move_forward_character:]]</span>"
     # END_MARKER = "<span class='bracket-font'>:blue-background[:blue[:material/text_select_move_back_character:]]</span>"
     # BEGIN_MARKER = "<span class='bracket-font'>:red-background[:red[\[]]</span>"
@@ -88,10 +90,9 @@ class Section:
         # Add text before start cursor
         if start_in_bounds:
             text_parts.append(self._slice_text(self.spans[0], cursor_start))
-            # text_parts.append(self.BEGIN_MARKER)
+
             text_parts.append(f"<span class='bracket-font'>:{cursor_color}-background[:{cursor_color}[\[]]</span>")
-            # text_parts.append(self._slice_text(cursor_start, cursor_end if end_in_bounds else self.spans[1]))
-            marked_txt = self._slice_text(cursor_start, cursor_end if end_in_bounds else self.spans[1])
+            marked_txt = self._slice_text(cursor_start, cursor_end + 1 if end_in_bounds else self.spans[1])
             # mark text with background color
             text_parts.append("\n\n".join([f":{cursor_color}-background[{x}]" for x in marked_txt.split('\n\n')]))
         else:
@@ -101,8 +102,6 @@ class Section:
 
         # Add end marker if applicable
         if end_in_bounds:
-            # text_parts.append(self.END_MARKER)
-
             text_parts.append(f"<span class='bracket-font'>:{cursor_color}-background[:{cursor_color}[\]]]</span>")
             text_parts.append(self._slice_text(cursor_end, self.spans[1]))
 
