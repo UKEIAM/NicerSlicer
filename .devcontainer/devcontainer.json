@@ -12,8 +12,8 @@
 	},
 	// Some config for Git
 	"remoteEnv": {
-		"GIT_NAME": "Christopher Gundler",
-		"GIT_EMAIL": "c.gundler@uke.de"
+		"GIT_NAME": "",
+		"GIT_EMAIL": ""
 	},
 	"postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && git config --global user.email \"${GIT_EMAIL}\" && git config --global user.name \"${GIT_NAME}\"",
 	"customizations": {
@@ -37,9 +37,5 @@
 		"--gpus",
 		"all",
 		"--ipc=host"
-	],
-	// Use the following to include extern files from the Nextcloud
-	"mounts": [
-		// "source=/nextcloud/data,target=/data,type=bind,consistency=cached"
 	]
 }
